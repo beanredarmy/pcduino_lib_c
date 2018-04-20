@@ -7,13 +7,14 @@
 #include "Serial.h"
 
 
-HwSerial Serial;
+//HwSerial Serial;
 
 void serialEvent() __attribute__((weak));
 #define serialEvent_implemented
 void serialEvent()
 {
-    Serial.process_recv();
+    //Serial.process_recv();
+    process_recv();
 }
 
 void serialEventRun(void)
@@ -23,7 +24,7 @@ void serialEventRun(void)
 #endif
 }
 
-static const char* serial_name = "/dev/ttyS1";
+static const char* serial_name = "/dev/ttyS";
 static inline char get_databit(byte config)
 {
     switch (config)
@@ -171,11 +172,12 @@ static inline int get_valid_baud(unsigned long speed)
 
 
 //under construct
-HwSerial::HwSerial()
+HwSerial::HwSerial(int uart_port);
 {
     _rx_buffer.head = _rx_buffer.tail = 0;
     _tx_buffer.head = _tx_buffer.tail = 0;
     _fd = -1;
+    _uart_port = uart_port;
 }
 
 HwSerial::~HwSerial()
@@ -183,13 +185,34 @@ HwSerial::~HwSerial()
     end();
 }
 
+
 void HwSerial::begin(unsigned long baud, byte config)
 {
     int ret;
     struct termios   Opt;
     //struct sigaction saio;  
-    hw_pinMode(GPIO0, IO_UART_FUNC); //uart_rx
-    hw_pinMode(GPIO1, IO_UART_FUNC); //uart_tx
+    switch(_uart_port)
+    {
+        case UART1: 
+            hw_pinMode(GPIO0, IO_UART_FUNC); //uart_rx
+            hw_pinMode(GPIO1, IO_UART_FUNC); //uart_tx
+            break;
+        case UART2:
+            hw_pinMode(GPIO13, IO_UART_FUNC); //uart_rx
+            hw_pinMode(GPIO10, IO_UART_FUNC); //uart_tx
+            break;
+        case UART3:
+            hw_pinMode(GPIO12, IO_UART_FUNC); //uart_rx
+            hw_pinMode(GPIO11, IO_UART_FUNC); //uart_tx
+            break;
+        default:
+            printf("set wrong UART");
+            break;
+    }
+
+    char uart_char[4];
+    sprintf(uart_char,"%d" ,_uart_port)
+    strcat(serial_name, uart_char);
 
     _fd = open(serial_name, O_RDWR| O_NOCTTY | O_NONBLOCK );
     if (_fd < 0 )

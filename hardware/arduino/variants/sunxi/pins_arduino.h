@@ -86,3 +86,7 @@
 #define SPIEX_MOSI GPIO21
 #define SPIEX_MISO GPIO22
 #define SPIEX_CLK  GPIO23
+
+#define UART1 1
+#define UART2 2
+#define UART3 3

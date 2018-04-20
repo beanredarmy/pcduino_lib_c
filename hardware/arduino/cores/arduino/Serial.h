@@ -45,9 +45,9 @@ private:
  	int _fd;
 	struct ring_buffer _rx_buffer;
 	struct ring_buffer _tx_buffer;
-	
+	int _uart_port;
 public:
-    HwSerial();
+    HwSerial(int);
 	~HwSerial();
     void begin(unsigned long, byte config = SERIAL_8N1);
     void end();
@@ -56,7 +56,7 @@ public:
     virtual int read(void);
     virtual void flush(void);
     virtual int write(byte);
-    inline int write(unsigned long n) { return write((byte)n); }
+    inline int write(unsigned long n) {  return write((byte)n); }
     inline int write(long n) { return write((byte)n); }
     inline int write(unsigned int n) { return write((byte)n); }
     inline int write(int n) { return write((byte)n); }
@@ -68,6 +68,6 @@ public:
 };
 
 extern void serialEventRun(void) __attribute__((weak));
-extern HwSerial Serial;
+//extern HwSerial Serial;
 
 #endif
